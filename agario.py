@@ -11,19 +11,37 @@ import numpy as np
 def main():
     clock = pg.time.Clock()
 
+    taille_fen = 40*16
     # on initialise pygame et on crée une fenêtre de 640x640 pixels
     pg.init()
-    screen = pg.display.set_mode((640, 640))
+    screen = pg.display.set_mode((taille_fen, taille_fen))
 
     # On donne un titre à la fenetre
     pg.display.set_caption("agario")
 
     blanc = (255, 255, 255)
     rouge = (255,0,0)
+    vert = (0,255,0)
+    bleu = (0,0,255)
+    violet = (238,130,238)
+    rose = (255,192,203)
+    orange = (255,128,0)
 
+    position = pg.math.Vector2((taille_fen//2,taille_fen//2)) #initialisation position blop
+    rayon = 80 #rayon du blop
+    rayon_fruit = 10 #rayon du fruit
+    #rayon_mechant = 30
+
+    def position_fruit():
+        return (randint(rayon_fruit,taille_fen-rayon_fruit),randint(rayon_fruit,taille_fen-rayon_fruit)) #générateur de position aléatoire
+    #initialisation des positions des fruits    
+    pos_fruit1 = position_fruit()
+    pos_fruit4 = position_fruit()
+    pos_fruit3 = position_fruit()
+    pos_fruit2 = position_fruit()
     
-    position = (320,320)
-
+    #pos_mechant = position_fruit()
+    
     done = False
     while not done:
         clock.tick(150)
@@ -33,9 +51,9 @@ def main():
         #quadrillage
         x1 = 0 
         y1 = 0 
-        x2 = 16*40
+        x2 = taille_fen
         y2 = 0
-        for i in range(16):
+        for i in range(taille_fen//40):
             y1 = 40*i
             y2 = 40*i
             pg.draw.line(screen, blanc, (x1, y1), (x2, y2))
@@ -43,24 +61,49 @@ def main():
         x1 = 0 
         y1 = 0 
         x2 = 0 
-        y2 = 16*40
-        for i in range(16):
+        y2 = taille_fen
+        for i in range(taille_fen//40):
             x1 = 40*i
             x2 = 40*i        
             pg.draw.line(screen, blanc, (x1, y1), (x2, y2)) #fin quadrillage
         
-        
+        #le blop suit la souris 
         direction = pg.math.Vector2.normalize(pg.math.Vector2(pg.mouse.get_pos()[0]-position[0],pg.mouse.get_pos()[1]-position[1]))
-        pg.draw.circle(screen, rouge, np.add(position,direction), 80)
+        pg.draw.circle(screen, rouge, np.add(position,direction), rayon)
         
         position = np.add(position,direction)
 
+        #manger des fruits et apparition
+        pg.draw.circle(screen,vert,pos_fruit4,rayon_fruit)
+        pg.draw.circle(screen,violet,pos_fruit3,rayon_fruit)
+        pg.draw.circle(screen,rose,pos_fruit2,rayon_fruit)
+        pg.draw.circle(screen,bleu,pos_fruit1,rayon_fruit)
         
+        #direction_mechant = pg.math.Vector2.normalize(pg.math.Vector2(position[0]-pos_mechant[0],position[1]-pos_mechant[1]))
+        #pg.draw.circle(screen, orange, np.add(pos_mechant,direction_mechant), rayon_mechant)
+
+        #pos_mechant = np.add(pos_mechant,direction_mechant//2)
+
+        if np.sqrt((position[0] - pos_fruit1[0])**2 + (position[1] - pos_fruit1[1])**2) <= (rayon-rayon_fruit):
+            pos_fruit1 = position_fruit()
+            rayon+=2
         
+        if np.sqrt((position[0] - pos_fruit2[0])**2 + (position[1] - pos_fruit2[1])**2) <= (rayon-rayon_fruit):
+            pos_fruit2 = position_fruit()
+            rayon+=2
         
+        if np.sqrt((position[0] - pos_fruit3[0])**2 + (position[1] - pos_fruit3[1])**2) <= (rayon-rayon_fruit):
+            pos_fruit3 = position_fruit()
+            rayon+=2
         
-        
-        
+        if np.sqrt((position[0] - pos_fruit4[0])**2 + (position[1] - pos_fruit4[1])**2) <= (rayon-rayon_fruit):
+            pos_fruit4 = position_fruit()
+            rayon+=2
+
+        #if np.sqrt((position[0] - pos_mechant[0])**2 + (position[0] - pos_mechant[0])**2) <= (rayon-rayon_mechant):
+            #rayon = rayon//2
+
+        pg.display.set_caption(f'taille blop = {rayon}')
         
         
         # enfin on met à jour la fenêtre avec tous les changements
